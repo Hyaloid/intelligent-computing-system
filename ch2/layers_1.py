@@ -44,7 +44,6 @@ class FullyConnectedLayer:
 
 
 class ReLULayer:
-
     def forward(self, _input):
         self._input = _input
         output = np.maximum(0, self._input)
