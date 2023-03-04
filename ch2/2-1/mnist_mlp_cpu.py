@@ -5,7 +5,7 @@ import numpy as np
 from layers_1 import FullyConnectedLayer, ReLULayer, SoftmaxLossLayer
 
 # for local
-MNIST_DIR = './data/MNIST/raw'
+MNIST_DIR = '../data/MNIST/raw'
 TRAIN_DATA = 'train/train-images-idx3-ubyte'
 TRAIN_LABELS = 'train/train-labels-idx1-ubyte'
 TEST_DATA = 'test/t10k-images-idx3-ubyte'
