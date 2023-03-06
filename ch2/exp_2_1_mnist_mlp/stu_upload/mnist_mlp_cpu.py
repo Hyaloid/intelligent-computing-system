@@ -2,10 +2,12 @@
 import os
 import struct
 import numpy as np
-from layers_1 import FullyConnectedLayer, ReLULayer, SoftmaxLossLayer
+from .layers_1 import FullyConnectedLayer, ReLULayer, SoftmaxLossLayer
+
 
 # for local
-MNIST_DIR = '../../data/MNIST/raw'
+os.chdir('E:\PyCharmProjects\intelligent-computing-system\ch2')
+MNIST_DIR = './data/MNIST/raw'
 TRAIN_DATA = 'train/train-images-idx3-ubyte'
 TRAIN_LABELS = 'train/train-labels-idx1-ubyte'
 TEST_DATA = 'test/t10k-images-idx3-ubyte'
@@ -125,7 +127,7 @@ class MNIST_MLP:
         np.save(param_dir, params)
 
     def load_model(self, param_dir):
-        params = np.load(param_dir).item()
+        params = np.load(param_dir, allow_pickle=True).item()
         self.fc1.load_param(params['w1'], params['b1'])
         self.fc2.load_param(params['w2'], params['b2'])
         self.fc3.load_param(params['w3'], params['b3'])
