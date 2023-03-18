@@ -2,7 +2,7 @@
 import os
 import struct
 import numpy as np
-from .layers_1 import FullyConnectedLayer, ReLULayer, SoftmaxLossLayer
+from layers_1 import FullyConnectedLayer, ReLULayer, SoftmaxLossLayer
 
 
 # for local

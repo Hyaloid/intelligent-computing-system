@@ -1,5 +1,4 @@
 *venv/
 ch2/data/
 *__pycache__/
-*.npy
 *.idea/
