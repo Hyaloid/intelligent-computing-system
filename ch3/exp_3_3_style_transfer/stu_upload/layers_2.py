@@ -1,7 +1,5 @@
 # coding:utf-8
 import numpy as np
-import struct
-import os
 import time
 
 
@@ -56,7 +54,7 @@ class ConvolutionalLayer(object):
         return self.output
 
     @staticmethod
-    def img2col(input, height_out, width_out, kernel_size, stride):
+    def img2col(input, height_out, width_out, kernel_size, stride):     # 4 -> 2
         output = np.zeros([input.shape[0], input.shape[1], kernel_size * kernel_size, height_out * width_out])
         height = (input.shape[2] - kernel_size) / stride + 1
         width = (input.shape[3] - kernel_size) / stride + 1
@@ -89,9 +87,9 @@ class ConvolutionalLayer(object):
         height_out = (height - self.kernel_size) / self.stride + 1
         width_out = (width - self.kernel_size) / self.stride + 1
         self.input_col = self.img2col(self.input_pad, height_out, width_out, self.kernel_size, self.stride)
-        self.input_col = self.input_col.reshape(self.input_col.shape[0], -1, self.input_col.shape[3])
+        self.input_col = self.input_col.reshape((self.input_col.shape[0], -1, self.input_col.shape[3]))
         self.weight_col = self.weight.transpose(3, 0, 1, 2).reshape(self.weight.shape[-1], -1)
-        print('---', self.input_col.shape, '---\n', self.weight_col.shape)
+        # print('---', self.input_col.shape, '---\n', self.weight_col.shape)
         output = np.matmul(self.weight_col, self.input_col) + self.bias.reshape(-1, 1)
 
         self.output = output.reshape(self.input.shape[0], self.channel_out, height_out, width_out)
@@ -106,7 +104,7 @@ class ConvolutionalLayer(object):
         height_pad = self.input.shape[2] + self.padding * 2
         width_pad = self.input.shape[3] + self.padding * 2
         bottom_diff_col = np.matmul(self.weight_col.T, top_diff.transpose(1, 2, 3, 0).reshape(self.channel_out, -1))
-        bottom_diff_col = bottom_diff_col.reshape((bottom_diff_col.shape[0], -1, self.input.shape[0])).transpose(2, 0, 1)
+        bottom_diff_col = np.transpose(bottom_diff_col.reshape((bottom_diff_col.shape[0], -1, self.input.shape[0])), [2, 0, 1])
         bottom_diff = self.col2img(bottom_diff_col, height_pad, width_pad, self.kernel_size, self.channel_in, self.padding, self.stride)
 
         self.backward_time = time.time() - start_time

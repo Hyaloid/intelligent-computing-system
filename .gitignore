@@ -2,5 +2,6 @@
 ch2/data/
 *__pycache__/
 *.idea/
+*.mat
 *.DS_Store
 *.pyc
