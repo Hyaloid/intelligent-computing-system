@@ -1,5 +1,5 @@
 *venv/
-ch2/data/
+*data/
 *__pycache__/
 *.idea/
 *.mat
