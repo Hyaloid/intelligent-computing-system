@@ -1,13 +1,14 @@
 from __future__ import print_function
 import sys, os, pdb
+
 sys.path.insert(0, 'src')
-import numpy as np, scipy.misc 
+import numpy as np, scipy.misc
 from optimize import optimize
 from argparse import ArgumentParser
 from utils import save_img, get_img, exists, list_files
 import evaluate
 
-os.putenv('MLU_VISIBLE_DEVICES','')
+os.putenv('MLU_VISIBLE_DEVICES', '')
 CONTENT_WEIGHT = 7.5e0
 STYLE_WEIGHT = 1e2
 TV_WEIGHT = 2e2
@@ -21,6 +22,7 @@ TRAIN_PATH = 'data/train2014_small'
 BATCH_SIZE = 4
 DEVICE = '/cpu:0'
 FRAC_GPU = 1
+
 
 def build_parser():
     parser = ArgumentParser()
@@ -70,7 +72,7 @@ def build_parser():
                         dest='content_weight',
                         help='content weight (default %(default)s)',
                         metavar='CONTENT_WEIGHT', default=CONTENT_WEIGHT)
-    
+
     parser.add_argument('--style-weight', type=float,
                         dest='style_weight',
                         help='style weight (default %(default)s)',
@@ -80,12 +82,12 @@ def build_parser():
                         dest='tv_weight',
                         help='total variation regularization weight (default %(default)s)',
                         metavar='TV_WEIGHT', default=TV_WEIGHT)
-    
+
     parser.add_argument('--learning-rate', type=float,
                         dest='learning_rate',
                         help='learning rate (default %(default)s)',
                         metavar='LEARNING_RATE', default=LEARNING_RATE)
-    
+
     parser.add_argument('--type', type=int,
                         dest='type',
                         help='type==0, use batch norm; type==1, use instance norm',
@@ -96,6 +98,7 @@ def build_parser():
                         default=True)
 
     return parser
+
 
 def check_opts(opts):
     exists(opts.checkpoint_dir, "checkpoint dir not found!")
@@ -114,11 +117,12 @@ def check_opts(opts):
     assert opts.tv_weight >= 0
     assert opts.learning_rate >= 0
 
+
 def _get_files(img_dir):
     files = list_files(img_dir)
-    return [os.path.join(img_dir,x) for x in files]
+    return [os.path.join(img_dir, x) for x in files]
 
-    
+
 def main():
     parser = build_parser()
     options = parser.parse_args()
@@ -132,14 +136,14 @@ def main():
         content_targets = [options.test]
 
     kwargs = {
-#        "slow":options.slow,
-        "epochs":options.epochs,
-        "print_iterations":options.checkpoint_iterations,
-        "batch_size":options.batch_size,
-        "save_path":os.path.join(options.checkpoint_dir,'fns.ckpt'),
-        "learning_rate":options.learning_rate,
-        "type":options.type,
-        "save":options.save
+        #        "slow":options.slow,
+        "epochs": options.epochs,
+        "print_iterations": options.checkpoint_iterations,
+        "batch_size": options.batch_size,
+        "save_path": os.path.join(options.checkpoint_dir, 'fns.ckpt'),
+        "learning_rate": options.learning_rate,
+        "type": options.type,
+        "save": options.save
     }
     if options.slow:
         if options.epochs < 10:
@@ -155,7 +159,7 @@ def main():
         options.tv_weight,
         options.vgg_path
     ]
-    
+
     for preds, losses, i, epoch in optimize(*args, **kwargs):
         style_loss, content_loss, tv_loss, loss = losses
         print('Epoch %d, Iteration: %d, Loss: %s' % (epoch, i, loss))
@@ -163,15 +167,16 @@ def main():
         print('style: %s, content:%s, tv: %s' % to_print)
         if options.test:
             assert options.test_dir != False
-            preds_path = '%s/%s_%s.png' % (options.test_dir,epoch,i)
+            preds_path = '%s/%s_%s.png' % (options.test_dir, epoch, i)
             if not options.slow:
                 ckpt_dir = os.path.dirname(options.checkpoint_dir)
-                evaluate.ffwd_to_img(options.test,preds_path,
+                evaluate.ffwd_to_img(options.test, preds_path,
                                      options.checkpoint_dir)
             else:
                 save_img(preds_path, img)
     ckpt_dir = options.checkpoint_dir
     print("Training complete.")
+
 
 if __name__ == '__main__':
     main()

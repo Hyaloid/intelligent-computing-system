@@ -7,7 +7,9 @@ import cv2 as cv
 import time
 from power_diff_numpy import *
 
-os.putenv('MLU_VISIBLE_DEVICES','')
+os.putenv('MLU_VISIBLE_DEVICES', '')
+
+
 def parse_arg():
     parser = argparse.ArgumentParser()
     parser.add_argument('image')
@@ -17,16 +19,17 @@ def parse_arg():
     args = parser.parse_args()
     return args
 
+
 def run_ori_pb(ori_pb, image):
     config = tf.ConfigProto(allow_soft_placement=True,
-                inter_op_parallelism_threads=1,
+                            inter_op_parallelism_threads=1,
                             intra_op_parallelism_threads=1)
     model_name = os.path.basename(ori_pb).split(".")[0]
     image_name = os.path.basename(image).split(".")[0]
 
     g = tf.Graph()
     with g.as_default():
-        with tf.gfile.FastGFile(ori_pb,'rb') as f:
+        with tf.gfile.FastGFile(ori_pb, 'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
             tf.import_graph_def(graph_def, name='')
@@ -40,24 +43,24 @@ def run_ori_pb(ori_pb, image):
             output_tensor = sess.graph.get_tensor_by_name('add_37:0')
 
             start_time = time.time()
-            ret =sess.run(output_tensor, feed_dict={input_tensor:[X]})
+            ret = sess.run(output_tensor, feed_dict={input_tensor: [X]})
             end_time = time.time()
-            print("C++ inference(CPU) origin pb time is: ",end_time-start_time)
-            img1 = tf.reshape(ret,[256,256,3])
+            print("C++ inference(CPU) origin pb time is: ", end_time - start_time)
+            img1 = tf.reshape(ret, [256, 256, 3])
             img_numpy = img1.eval(session=sess)
-            cv.imwrite(image_name + '_' + model_name + '_cpu.jpg',img_numpy)
+            cv.imwrite(image_name + '_' + model_name + '_cpu.jpg', img_numpy)
 
 
 def run_ori_power_diff_pb(ori_power_diff_pb, image):
     config = tf.ConfigProto(allow_soft_placement=True,
-                inter_op_parallelism_threads=1,
+                            inter_op_parallelism_threads=1,
                             intra_op_parallelism_threads=1)
     model_name = os.path.basename(ori_power_diff_pb).split(".")[0]
     image_name = os.path.basename(image).split(".")[0]
 
     g = tf.Graph()
     with g.as_default():
-        with tf.gfile.FastGFile(ori_power_diff_pb,'rb') as f:
+        with tf.gfile.FastGFile(ori_power_diff_pb, 'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
             tf.import_graph_def(graph_def, name='')
@@ -68,23 +71,24 @@ def run_ori_power_diff_pb(ori_power_diff_pb, image):
             _________________
 
             start_time = time.time()
-            ret =sess.run(...)
+            ret = sess.run(...)
             end_time = time.time()
-            print("C++ inference(CPU) time is: ",end_time-start_time)
-            img1 = tf.reshape(ret,[256,256,3])
+            print("C++ inference(CPU) time is: ", end_time - start_time)
+            img1 = tf.reshape(ret, [256, 256, 3])
             img_numpy = img1.eval(session=sess)
-            cv.imwrite(image_name + '_' + model_name + '_cpu.jpg',img_numpy)
+            cv.imwrite(image_name + '_' + model_name + '_cpu.jpg', img_numpy)
+
 
 def run_numpy_pb(numpy_pb, image):
     config = tf.ConfigProto(allow_soft_placement=True,
-                inter_op_parallelism_threads=1,
+                            inter_op_parallelism_threads=1,
                             intra_op_parallelism_threads=1)
     model_name = os.path.basename(numpy_pb).split(".")[0]
     image_name = os.path.basename(image).split(".")[0]
 
     g = tf.Graph()
     with g.as_default():
-        with tf.gfile.FastGFile(numpy_pb,'rb') as f:
+        with tf.gfile.FastGFile(numpy_pb, 'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
             tf.import_graph_def(graph_def, name='')
@@ -98,10 +102,10 @@ def run_numpy_pb(numpy_pb, image):
             _________________
             ret = sess.run(...)
             end_time = time.time()
-            print("Numpy inference(CPU) time is: ",end_time-start_time)
-            img1 = tf.reshape(ret,[256,256,3])
+            print("Numpy inference(CPU) time is: ", end_time - start_time)
+            img1 = tf.reshape(ret, [256, 256, 3])
             img_numpy = img1.eval(session=sess)
-            cv.imwrite(image_name + '_' + model_name + '_cpu.jpg',img_numpy)
+            cv.imwrite(image_name + '_' + model_name + '_cpu.jpg', img_numpy)
 
 
 if __name__ == '__main__':

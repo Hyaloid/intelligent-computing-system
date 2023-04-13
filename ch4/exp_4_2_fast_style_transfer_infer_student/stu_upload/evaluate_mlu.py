@@ -1,6 +1,7 @@
 # coding:utf-8
 from __future__ import print_function
 import sys
+
 sys.path.insert(0, 'src')
 import os
 import scipy.misc
@@ -16,7 +17,8 @@ import numpy as np
 BATCH_SIZE = 4
 DEVICE = '/cpu:0'
 
-os.putenv('MLU_VISIBLE_DEVICES','0')
+os.putenv('MLU_VISIBLE_DEVICES', '0')
+
 
 # get img_shape
 def ffwd(data_in, paths_out, model, device_t='', batch_size=1):
@@ -30,16 +32,16 @@ def ffwd(data_in, paths_out, model, device_t='', batch_size=1):
     g = tf.Graph()
     # setting mlu configurations
     config = tf.ConfigProto(allow_soft_placement=True,
-                    inter_op_parallelism_threads=1,
-                    intra_op_parallelism_threads=1)
+                            inter_op_parallelism_threads=1,
+                            intra_op_parallelism_threads=1)
     config.mlu_options.data_parallelism = 1
     config.mlu_options.model_parallelism = 1
-    config.mlu_options.core_num = 16 # 1 4 16
+    config.mlu_options.core_num = 16  # 1 4 16
     config.mlu_options.core_version = "MLU270"
     config.mlu_options.precision = "int8"
     config.mlu_options.save_offline_model = False
     with g.as_default():
-        with tf.gfile.FastGFile(model,'rb') as f:
+        with tf.gfile.FastGFile(model, 'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
             tf.import_graph_def(graph_def, name='')
@@ -50,32 +52,34 @@ def ffwd(data_in, paths_out, model, device_t='', batch_size=1):
             output_tensor = sess.graph.get_tensor_by_name('add_37:0')
             batch_size = 1
             # TODO：读入的输入图像的数据格式为 HWC，还需要将其转换成 NHWC
-            batch_shape = ______________________ 
-            num_iters = int(len(paths_out)/batch_size)
+            batch_shape = ______________________
+            num_iters = int(len(paths_out) / batch_size)
             for i in range(num_iters):
                 pos = i * batch_size
-                curr_batch_out = paths_out[pos:pos+batch_size]
+                curr_batch_out = paths_out[pos:pos + batch_size]
                 # TODO：如果 data_in 是保存输入图像的文件路径，则依次将该批次中输入图像文件路径下的 batch_size 张图像读入数组 X；
                 # 如果 data_in 是已经读入图像并转化成数组形式的数据，则将该数组传递给 X
                 ______________________
                 ______________________
-              
+
                 start = time.time()
                 # TODO: 使用 sess.run 来计算 output_tensor
                 _preds = ______________________
                 end = time.time()
                 for j, path_out in enumerate(curr_batch_out):
-                    #TODO：在该批次下调用 utils.py 中的 save_img() 函数对所有风格迁移后的图片进行存储
+                    # TODO：在该批次下调用 utils.py 中的 save_img() 函数对所有风格迁移后的图片进行存储
                     ______________________
-                delta_time = end - start	
-                print("Inference (MLU) processing time: %s" % delta_time)  
+                delta_time = end - start
+                print("Inference (MLU) processing time: %s" % delta_time)
+
 
 def ffwd_to_img(in_path, out_path, model, device='/cpu:0'):
     paths_in, paths_out = [in_path], [out_path]
     ffwd(paths_in, paths_out, model, batch_size=1, device_t=device)
 
-def ffwd_different_dimensions(in_path, out_path, model, 
-            device_t=DEVICE, batch_size=4):
+
+def ffwd_different_dimensions(in_path, out_path, model,
+                              device_t=DEVICE, batch_size=4):
     in_path_of_shape = defaultdict(list)
     out_path_of_shape = defaultdict(list)
     for i in range(len(in_path)):
@@ -86,18 +90,19 @@ def ffwd_different_dimensions(in_path, out_path, model,
         out_path_of_shape[shape].append(out_image)
     for shape in in_path_of_shape:
         print('Processing images of shape %s' % shape)
-        ffwd(in_path_of_shape[shape], out_path_of_shape[shape], 
-            model, device_t, batch_size)
+        ffwd(in_path_of_shape[shape], out_path_of_shape[shape],
+             model, device_t, batch_size)
+
 
 def build_parser():
     parser = ArgumentParser()
     parser.add_argument('--model', type=str,
                         dest='model',
                         help='dir or .pb file to load model',
-                        metavar='MODEL', required=True)  
+                        metavar='MODEL', required=True)
 
     parser.add_argument('--in-path', type=str,
-                        dest='in_path',help='dir or file to transform',
+                        dest='in_path', help='dir or file to transform',
                         metavar='IN_PATH', required=True)
 
     help_out = 'destination (dir or file) of transformed file or files'
@@ -106,18 +111,19 @@ def build_parser():
                         required=True)
 
     parser.add_argument('--device', type=str,
-                        dest='device',help='device to perform compute on',
+                        dest='device', help='device to perform compute on',
                         metavar='DEVICE', default=DEVICE)
 
     parser.add_argument('--batch-size', type=int,
-                        dest='batch_size',help='batch size for feedforwarding',
+                        dest='batch_size', help='batch size for feedforwarding',
                         metavar='BATCH_SIZE', default=BATCH_SIZE)
 
     parser.add_argument('--allow-different-dimensions', action='store_true',
-                        dest='allow_different_dimensions', 
+                        dest='allow_different_dimensions',
                         help='allow different image dimensions')
 
     return parser
+
 
 def check_opts(opts):
     exists(opts.model, 'Model not found!')
@@ -126,6 +132,7 @@ def check_opts(opts):
         exists(opts.out_path, 'out dir not found!')
         assert opts.batch_size > 0
 
+
 def main():
     parser = build_parser()
     opts = parser.parse_args()
@@ -133,7 +140,7 @@ def main():
 
     if not os.path.isdir(opts.in_path):
         if os.path.exists(opts.out_path) and os.path.isdir(opts.out_path):
-            out_path = os.path.join(opts.out_path,os.path.basename(opts.in_path))
+            out_path = os.path.join(opts.out_path, os.path.basename(opts.in_path))
         else:
             out_path = opts.out_path
 
@@ -141,14 +148,15 @@ def main():
                     device=opts.device)
     else:
         files = list_files(opts.in_path)
-        full_in = [os.path.join(opts.in_path,x) for x in files]
-        full_out = [os.path.join(opts.out_path,x) for x in files]
+        full_in = [os.path.join(opts.in_path, x) for x in files]
+        full_out = [os.path.join(opts.out_path, x) for x in files]
         if opts.allow_different_dimensions:
-            ffwd_different_dimensions(full_in, full_out, opts.model, 
-                    device_t=opts.device, batch_size=opts.batch_size)
-        else :
+            ffwd_different_dimensions(full_in, full_out, opts.model,
+                                      device_t=opts.device, batch_size=opts.batch_size)
+        else:
             ffwd(full_in, full_out, opts.model, device_t=opts.device,
-                    batch_size=opts.batch_size)
+                 batch_size=opts.batch_size)
+
 
 if __name__ == '__main__':
     main()

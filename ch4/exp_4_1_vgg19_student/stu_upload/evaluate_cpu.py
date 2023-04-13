@@ -6,10 +6,11 @@ import time
 import tensorflow as tf
 from tensorflow.python.framework import graph_util
 
-os.putenv('MLU_VISIBLE_DEVICES','')
+os.putenv('MLU_VISIBLE_DEVICES', '')
 
 IMAGE_PATH = 'data/cat1.jpg'
 VGG_PATH = 'imagenet-vgg-verydeep-19.mat'
+
 
 def net(data_path, input_image):
     layers = (
@@ -51,18 +52,18 @@ def net(data_path, input_image):
         elif name == 'softmax':
             # TODO: 执行 softmax 计算，计算结果存入 current
             ____________________
-        elif name  == 'fc6':
+        elif name == 'fc6':
             # TODO: 执行全连接层计算，计算结果存入 current
             kernels, bias = weights[i][0][0][0][0]
             ____________________
-        elif name  == 'fc7':
+        elif name == 'fc7':
             kernels, bias = weights[i][0][0][0][0]
             ____________________
-        elif name  == 'fc8':
+        elif name == 'fc8':
             kernels, bias = weights[i][0][0][0][0]
             ____________________
 
-        net[name] = current 
+        net[name] = current
 
     assert len(net) == len(layers)
     return net
@@ -72,12 +73,15 @@ def _conv_layer(input, weights, bias):
     # TODO: 定义卷积层的操作步骤，input 为输入张量，weights 为权重参数，bias 为偏置参数，返回计算的结果
     ____________________
 
+
 def _pool_layer(input):
     # TODO: 定义最大池化的操作步骤，input 为输入张量，返回池化操作后的计算结果
     ____________________
 
-def preprocess(image,mean):
+
+def preprocess(image, mean):
     return image - mean
+
 
 def load_image(path):
     # TODO: 使用 scipy.misc 模块读入输入图像，调用 preprocess 函数对图像进行预处理，并返回形状为（1,244,244,3）的数组 image
@@ -86,11 +90,12 @@ def load_image(path):
     ____________________
     return image
 
+
 if __name__ == '__main__':
     input_image = load_image(IMAGE_PATH)
 
     with tf.Session() as sess:
-        img_placeholder = tf.placeholder(tf.float32, shape=(1,224,224,3),
+        img_placeholder = tf.placeholder(tf.float32, shape=(1, 224, 224, 3),
                                          name='img_placeholder')
         # TODO: 调用 net 函数，生成 VGG19 网络模型并保存在 nets 中
         nets = ____________________
@@ -100,7 +105,7 @@ if __name__ == '__main__':
             # TODO: 计算 nets
             preds = ____________________
             end = time.time()
-            delta_time = end - start	
+            delta_time = end - start
             print("processing time: %s" % delta_time)
 
         prob = preds['softmax'][0]
