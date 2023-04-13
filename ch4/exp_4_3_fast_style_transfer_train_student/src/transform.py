@@ -6,12 +6,20 @@ WEIGHTS_INIT_STDEV = .1
 def net(image, type=0):
     # 该函数构建图像转换网络，image 为步骤 1 中读入的图像 ndarray 阵列，返回最后一层的输出结果
     # TODO：构建图像转换网络，每一层的输出作为下一层的输入
-    conv1 = ___________________
-    conv2 = ___________________
-    ___________________
+    conv1 = _conv_layer(image, num_filters=32, filter_size=9, strides=1)
+    conv2 = _conv_layer(conv1, num_filters=64, filter_size=3, strides=2)
+    conv3 = _conv_layer(conv2, num_filters=128, filter_size=3, strides=2)
+    net = _residual_block(conv3)
+    net = _residual_block(net)
+    net = _residual_block(net)
+    net = _residual_block(net)
+    net = _residual_block(net)
+    conv_t1 = _conv_tranpose_layer(net, num_filters=64, filter_size=3, strides=2)
+    conv_t2 = _conv_tranpose_layer(conv_t1, num_filters=32, filter_size=3, strides=2)
+    conv_t3 = _conv_tranpose_layer(conv_t2, num_filters=3, filter_size=9, strides=1)
 
     # TODO：最后一个卷积层的输出再经过 tanh 函数处理，最后的输出张量 preds 像素值需限定在 [0,255] 范围内
-    preds = ___________________
+    preds = tf.nn.tanh(conv_t3) * 127.5 + 255. / 2.
     return preds
 
 
@@ -20,13 +28,13 @@ def _conv_layer(net, num_filters, filter_size, strides, relu=True, type=0):
     # 寸，strides 表示卷积步长，该函数最后返回卷积层计算的结果
 
     # TODO：准备好权重的初值
-    weights_init = ___________________
+    weights_init = _conv_init_vars(net, num_filters, filter_size)
 
     # TODO：输入的 strides 参数为标量，需将其处理成卷积函数能够使用的数据形式
-    strides_shape = ___________________
+    strides_shape = [1, strides, strides, 1]
 
     # TODO：进行卷积计算
-    net = ___________________
+    net = tf.nn.conv2d(net, filter=weights_init, strides=strides_shape, padding='SAME')
 
     # 对卷积计算结果进行批归一化处理
     if type == 0:
@@ -36,21 +44,24 @@ def _conv_layer(net, num_filters, filter_size, strides, relu=True, type=0):
 
     if relu:
         # TODO：对归一化结果进行 ReLU 操作
-        net = ___________________
+        net = tf.nn.relu(net)
 
     return net
 
 
 def _conv_tranpose_layer(net, num_filters, filter_size, strides, type=0):
     # TODO：准备好权重的初值
-    weights_init = ___________________
-    ___________________
+    weights_init = _conv_init_vars(net, num_filters, filter_size, True)
+    batch_size, rows, cols, in_channels = [i.value for i in net.get_shape()]
+    new_rows, new_cols = int(rows * strides), int(cols * strides)
 
     # TODO：输入的 num_filters、strides 参数为标量，需将其处理成转置卷积函数能够使用的数据形式
-    ___________________
+    new_shape = [batch_size, new_rows, new_cols, num_filters]
+    num_filters_shape = tf.stack(new_shape)
+    strides_shape = [1, strides, strides, 1]
 
     # TODO：进行转置卷积计算
-    net = ___________________
+    net = tf.nn.conv2d_transpose(net, weights_init, num_filters_shape, strides_shape, 'SAME')
 
     # 对卷积计算结果进行批归一化处理
     if type == 0:
@@ -59,15 +70,16 @@ def _conv_tranpose_layer(net, num_filters, filter_size, strides, type=0):
         net = _instance_norm(net)
 
     # TODO：对归一化结果进行 ReLU 操作
-    ___________________
+    net = tf.nn.relu(net)
 
     return net
 
 
 def _residual_block(net, filter_size=3, type=0):
     # TODO：调用之前实现的卷积层函数，实现残差块的计算
-    ___________________
-    return net
+    tmp = _conv_layer(net, 128, filter_size, 1, type=type)
+    tmp = _conv_layer(tmp, 128, filter_size, 1, type=type)
+    return net + tmp
 
 
 def _batch_norm(net, train=True):

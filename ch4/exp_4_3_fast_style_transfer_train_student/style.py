@@ -129,7 +129,7 @@ def main():
     check_opts(options)
 
     # TODO：获取风格图像 style_target 以及内容图像数组 content_targets
-    style_target = ___________________
+    style_target = get_img(options.style)
     if not options.slow:
         content_targets = _get_files(options.train_path)
     elif options.test:
@@ -173,7 +173,8 @@ def main():
                 evaluate.ffwd_to_img(options.test, preds_path,
                                      options.checkpoint_dir)
             else:
-                save_img(preds_path, img)
+                # save_img(preds_path, img)
+                pass
     ckpt_dir = options.checkpoint_dir
     print("Training complete.")
 
