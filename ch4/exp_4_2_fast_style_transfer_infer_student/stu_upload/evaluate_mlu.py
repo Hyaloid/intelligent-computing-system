@@ -26,8 +26,10 @@ def ffwd(data_in, paths_out, model, device_t='', batch_size=1):
     is_paths = type(data_in[0]) == str
     # TODO：如果 data_in 是保存输入图像的文件路径，即 is_paths 为 True，则读入第一张图像，由于 pb 模型的输入维度为 1 × 256 × 256 × 3, 因此需将输入图像的形状调整为 256 × 256，并传递给 img_shape；
     # 如果 data_in 是已经读入图像并转化成数组形式的数据，即 is_paths 为 False，则直接获取图像的 shape 特征 img_shape
-    ______________________
-    ______________________
+    if is_paths:
+        img_shape = get_img(src=data_in[0], img_size=(256, 256, 3)).shape
+    else:
+        img_shape = data_in[0].shape
 
     g = tf.Graph()
     # setting mlu configurations
@@ -52,23 +54,27 @@ def ffwd(data_in, paths_out, model, device_t='', batch_size=1):
             output_tensor = sess.graph.get_tensor_by_name('add_37:0')
             batch_size = 1
             # TODO：读入的输入图像的数据格式为 HWC，还需要将其转换成 NHWC
-            batch_shape = ______________________
+            batch_shape = (batch_size, ) + img_shape
             num_iters = int(len(paths_out) / batch_size)
             for i in range(num_iters):
                 pos = i * batch_size
                 curr_batch_out = paths_out[pos:pos + batch_size]
                 # TODO：如果 data_in 是保存输入图像的文件路径，则依次将该批次中输入图像文件路径下的 batch_size 张图像读入数组 X；
                 # 如果 data_in 是已经读入图像并转化成数组形式的数据，则将该数组传递给 X
-                ______________________
-                ______________________
+                X = np.zeros(batch_shape)
+                if is_paths:
+                    for bsi in range(batch_size):
+                        X[bsi] = get_img(data_in[bsi], img_size=img_shape)
+                else:
+                    X = data_in
 
                 start = time.time()
                 # TODO: 使用 sess.run 来计算 output_tensor
-                _preds = ______________________
+                _preds = sess.run(output_tensor, feed_dict={input_tensor: X})
                 end = time.time()
                 for j, path_out in enumerate(curr_batch_out):
                     # TODO：在该批次下调用 utils.py 中的 save_img() 函数对所有风格迁移后的图片进行存储
-                    ______________________
+                    save_img(path_out, _preds[j])
                 delta_time = end - start
                 print("Inference (MLU) processing time: %s" % delta_time)
 
