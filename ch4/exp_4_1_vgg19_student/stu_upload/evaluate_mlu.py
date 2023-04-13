@@ -57,7 +57,7 @@ if __name__ == '__main__':
             for i in range(10):
                 start = time.time()
                 # TODO: 计算 output_tensor
-                preds = ____________________
+                preds = sess.run(output_tensor, feed_dict={input_tensor: input_image})
                 end = time.time()
                 delta_time = end - start
                 print("Inference (MLU) processing time: %s" % delta_time)
