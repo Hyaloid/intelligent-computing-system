@@ -6,32 +6,19 @@ import os
 import scipy.io
 import time
 
-<<<<<<< HEAD
-def computeMse(data1,data2):
-    errors = []
-    for i in range(len(data1)):
-        errors.append(data1[i]-data2[i])
-=======
 
 def computeMse(data1, data2):
     errors = []
     for i in range(len(data1)):
         errors.append(data1[i] - data2[i])
->>>>>>> e4a09f764d67be67e0fb1f85c007dc91a2ad3b7e
 
     squared_error = []
     for val in errors:
         squared_error.append(pow(val, 2))
-<<<<<<< HEAD
-    
-    return sum(squared_error) / len(squared_error)
-
-=======
 
     return sum(squared_error) / len(squared_error)
 
 
->>>>>>> e4a09f764d67be67e0fb1f85c007dc91a2ad3b7e
 def forward(vgg):
     print('Inferencing...')
     start_time = time.time()
@@ -42,16 +29,7 @@ def forward(vgg):
         current = vgg.layers[vgg.param_layer_name[idx]].forward(current)
         if 'pool5' in vgg.param_layer_name[idx]:
             pool5 = current
-<<<<<<< HEAD
     print('Inference time: %f' % (time.time()-start_time))
-    return current, pool5
-
-def check_pool5(stu_pool5):
-    data = np.load('pool5_dump.npy')
-    pool5_mse = computeMse(stu_pool5.flatten(), data.flatten())
-    print('test pool5 mse: %f'%pool5_mse)
-=======
-    print('Inference time: %f' % (time.time() - start_time))
     return current, pool5
 
 
@@ -59,7 +37,6 @@ def check_pool5(stu_pool5):
     data = np.load('pool5_dump.npy')
     pool5_mse = computeMse(stu_pool5.flatten(), data.flatten())
     print('test pool5 mse: %f' % pool5_mse)
->>>>>>> e4a09f764d67be67e0fb1f85c007dc91a2ad3b7e
 
     if pool5_mse < 0.003:
         print('CHECK POOL5 PASS.')
@@ -67,20 +44,14 @@ def check_pool5(stu_pool5):
         print('CHECK POOL5 FAILED.')
         exit()
 
-<<<<<<< HEAD
-=======
 
->>>>>>> e4a09f764d67be67e0fb1f85c007dc91a2ad3b7e
 def evaluate(vgg):
     prob, pool5 = forward(vgg)
     top1 = np.argmax(prob[0])
     print('Classification result: id = %d, prob = %f' % (top1, prob[0, top1]))
     return pool5
 
-<<<<<<< HEAD
-=======
 
->>>>>>> e4a09f764d67be67e0fb1f85c007dc91a2ad3b7e
 if __name__ == '__main__':
     vgg = VGG19(param_path='../imagenet-vgg-verydeep-19.mat')
     vgg.build_model()
@@ -89,8 +60,4 @@ if __name__ == '__main__':
     vgg.load_image('../cat1.jpg')
     pool5 = evaluate(vgg)
     print('-------------------------------')
-<<<<<<< HEAD
     check_pool5(pool5)
-=======
-    check_pool5(pool5)
->>>>>>> e4a09f764d67be67e0fb1f85c007dc91a2ad3b7e

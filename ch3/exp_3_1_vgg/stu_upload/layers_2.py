@@ -46,17 +46,9 @@ class ConvolutionalLayer:
             for idxc in range(self.channel_out):
                 for idxh in range(height_out):
                     for idxw in range(width_out):
-<<<<<<< HEAD
-                        print(self.weight[:, :, :, idxc], '-----111')
-                        print(self.input_pad[idxn, :, idxh * self.stride: idxh * self.stride + self.kernel_size, idxw * self.stride: idxw * self.stride + self.kernel_size], '===2222')
-                        # TODO: 计算卷积层的前向传播，特征图与卷积核的内积再加偏置
-                        self.output[idxn, idxc, idxh, idxw] = np.sum(
-                            self.weight[:, :, :, idxc] * self.input_pad[idxn, :, idxh * self.stride: idxh * self.stride + self.kernel_size, idxw * self.stride: idxw * self.stride + self.kernel_size]
-=======
                         # TODO: 计算卷积层的前向传播，特征图与卷积核的内积再加偏置
                         self.output[idxn, idxc, idxh, idxw] = np.sum(
                             self.weight[:, :, :, idxc], self.input_pad[idxn, :, idxh * self.stride: idxh * self.stride + self.kernel_size, idxw * self.stride: idxw * self.stride + self.kernel_size]
->>>>>>> e4a09f764d67be67e0fb1f85c007dc91a2ad3b7e
                         ) + self.bias[idxc]
         return self.output
 
