@@ -101,7 +101,13 @@ class PowerDifferenceOp : public OpKernel {
       float tmp = 0;
 
       // TODO: 补全 power_diference 算子计算部分
-      ___________________
+      for (int i = 0; i < N; i ++) {
+        tmp = input_x(i) - input_y(i);
+        output(i) = tmp;
+        for (int j = 0; j < POW - 1; j ++) {
+          output(i) = output(i) * tmp;
+        }
+      }
     }
 };
 

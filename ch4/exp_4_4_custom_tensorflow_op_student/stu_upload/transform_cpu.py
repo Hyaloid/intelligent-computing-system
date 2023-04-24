@@ -68,10 +68,15 @@ def run_ori_power_diff_pb(ori_power_diff_pb, image):
         X = cv.resize(img, (256, 256))
         with tf.Session(config=config) as sess:
             # TODO：完成PowerDifference Pb模型的推理
-            _________________
+            # TODO：完成PowerDifference Pb模型的推理
+            sess.run(tf.global_variables_initializer())
+            input_tensor = sess.graph.get_tensor_by_name('X_content:0')
+            input_tensor_pow = sess.graph.get_tensor_by_name('moments_15/PowerDifference_z:0')
+            output_tensor = sess.graph.get_tensor_by_name('add_37:0')
+            input_pow = np.array(2, dtype=float)
 
             start_time = time.time()
-            ret = sess.run(...)
+            ret = sess.run(output_tensor, feed_dict={input_tensor: [X], input_tensor_pow: input_pow})
             end_time = time.time()
             print("C++ inference(CPU) time is: ", end_time - start_time)
             img1 = tf.reshape(ret, [256, 256, 3])
@@ -96,11 +101,17 @@ def run_numpy_pb(numpy_pb, image):
         X = cv.resize(img, (256, 256))
         with tf.Session(config=config) as sess:
             # TODO：完成Numpy版本 Pb模型的推理
-            _________________
+            input_tensor = sess.graph.get_tensor_by_name('X_content:0')
+            out_tensor1 = sess.graph.get_tensor_by_name('Conv2D_13:0')
+            out_tensor2 = sess.graph.get_tensor_by_name('moments_15/StopGradient:0')
+            output_tensor = sess.graph.get_tensor_by_name('add_37:0')
 
             start_time = time.time()
-            _________________
-            ret = sess.run(...)
+            input_x, input_y = sess.run([out_tensor1, out_tensor2], feed_dict={input_tensor: [X]})
+            input_pow = 2
+            output = power_diff_numpy(input_x, input_y, input_pow).reshape(1, 256, 256, 3)
+            input_tensor_new = sess.graph.get_tensor_by_name('moments_15/PowerDifference:0')
+            ret = sess.run(output_tensor, feed_dict={input_tensor: [X], input_tensor_new: output})
             end_time = time.time()
             print("Numpy inference(CPU) time is: ", end_time - start_time)
             img1 = tf.reshape(ret, [256, 256, 3])
