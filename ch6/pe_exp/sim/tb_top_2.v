@@ -30,10 +30,10 @@ reg [ 44:0] result[3:0];
 
 initial
 begin
-  $readmemh("C:/Users/11315/workspace/pe_exp/data/inst", inst);   // TODO: change dir !!!
-  $readmemh("C:/Users/11315/workspace/pe_exp/data/neuron", neuron);
-  $readmemh("C:/Users/11315/workspace/pe_exp/data/weight", weight);
-  $readmemb("C:/Users/11315/workspace/pe_exp/data/result", result);
+  $readmemh("D:/pe_exp/data/inst", inst);   // TODO: change dir !!!
+  $readmemh("D:/pe_exp/data/neuron", neuron);
+  $readmemh("D:/pe_exp/data/weight", weight);
+  $readmemb("D:/pe_exp/data/result", result);
 end
 
 reg [ 1:0]   inst_addr;
