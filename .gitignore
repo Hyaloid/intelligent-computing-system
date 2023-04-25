@@ -1,5 +1,6 @@
 *venv/
 *data/
+!ch6/pe_exp/data/
 *__pycache__/
 *.idea/
 *.mat
