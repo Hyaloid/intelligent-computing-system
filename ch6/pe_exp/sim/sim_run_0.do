@@ -1,1 +1,1 @@
-vsim +nowarnTSCALE -lib work -c -novopt tb_top
+vsim +nowarnTSCALE -lib work -c -novopt tb_top_0
