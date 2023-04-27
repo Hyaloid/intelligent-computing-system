@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module tb_top;
+module tb_top_2;
 localparam WIDTH = 32;
 
 reg        clk; // clk
