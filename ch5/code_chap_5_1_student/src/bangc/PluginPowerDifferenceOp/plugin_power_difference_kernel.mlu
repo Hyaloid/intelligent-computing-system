@@ -21,21 +21,44 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************/
 // TODO：PowerDifference BCL单核实现
-__mlu_entry__ void PowerDifferenceKernel(...)
+#define ONELINE 256
+__mlu_entry__ void PowerDifferenceKernel(half *input1, half *input2, int pow, half *output, int len)
 {
   if (taskId > 0) return;
   // TODO：循环条件判断
-  ---
+  int quotient = len / ONELINE;
+  __bang_printf("%d %d\n", pow, len);
+  int rem = len % ONELINE;
   // TODO：内存申请
-  ---
+  __nram__ half input1_nram[ONELINE];
+  __nram__ half input2_nram[ONELINE];
   // TODO：For循环计算
-  for (int i = 0; i < ---; i++)
+  for (int i = 0; i < quotient; i++)
   {
     // TODO：拷入操作
-    __memcpy(---);
+    __memcpy(input1_nram, input1 + i*ONELINE, ONELINE*sizeof(half), GDRAM2NRAM); //GDRAM2NRAM
+    __memcpy(input2_nram, input2 + i*ONELINE, ONELINE*sizeof(half), GDRAM2NRAM);
     // TODO：实际计算部分
-    ---
+    __bang_sub(input1_nram, input1_nram, input2_nram, ONELINE);//sub of size ONELINE: input1_nram = input1_nram - input2_nram
+    __memcpy(input2_nram, input1_nram, ONELINE*sizeof(half), NRAM2NRAM);//input1_nram -> input2_nram
+    for(int j = 0; j < pow-1; j++)
+    {
+      __bang_mul(input1_nram, input1_nram, input2_nram, ONELINE);//mul of size ONELINE: input1_nram  = input1_nram * inpur2_nram
+    }
     // TODO：结果拷出操作
-    __memcpy(---);
+    __memcpy(output+i*ONELINE, input1_nram, ONELINE*sizeof(half), NRAM2GDRAM);//NRAM2GDRAM
+  }
+  //data_size=rem, i = quotient
+  if(rem != 0)
+  {
+    __memcpy(input1_nram, input1 + quotient*ONELINE, rem*sizeof(half), GDRAM2NRAM);
+    __memcpy(input2_nram, input2 + quotient*ONELINE, rem*sizeof(half), GDRAM2NRAM);
+    __bang_sub(input1_nram, input1_nram, input2_nram, rem);
+    __memcpy(input2_nram, input1_nram, rem*sizeof(half), NRAM2NRAM);
+    for(int j = 0; j < pow-1; j++)
+    {
+      __bang_mul(input1_nram, input1_nram, input2_nram, rem);
+    }
+    __memcpy(output + quotient*ONELINE, input1_nram, rem*sizeof(half), NRAM2GDRAM);
   }
 }
